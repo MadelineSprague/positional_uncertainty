@@ -117,9 +117,15 @@ end
 
     end
     
-    D       = 14*24*60*60;                                       % deployment time of both tags and sources
-    d_arr   = (20/1e9 + 1/1e6)*D + (1.8)*0.3 + 0.0058 .* range;  % formulation of arrival uncertainty (described in readme)
-    d_range = d_arr * (c + dc);                                  % the range uncertainty associated with each grid cell for each source 
+    D       = 14*24*60*60;                                   % deployment time of both tags and sources in seconds
+    V_dopp  = 0.3;                                           % characteristic Doppler velocity
+    fs      = 262;                                           % central frequency of signal pan (Hz)
+    w       = 32;                                            % length of signal in time (s)
+    B       = 3;                                             % bandwidth of signal pan (Hz)
+    dT_dopp = fs * ((c*1000 + V_dopp)/(c*1000) - 1) * w / B; % Doppler shift time error (s)
+    dR_mp   = (0.13 * sqrt(range) + 0.35);                   % Range-based error due to multipathing (km)
+    d_arr   = (20/1e9 + 1/1e6)*D + dT_dopp;                  % formulation of arrival TIME uncertainty (s)
+    d_range = d_arr * (c + dc) + 2*dR_mp;                    % the range uncertainty associated with each grid cell for each source (km)
 
     min_range = range - d_range; 
     max_range = range + d_range; 
